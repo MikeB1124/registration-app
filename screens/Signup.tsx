@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Text, View, TextInput, SafeAreaView, StyleSheet } from "react-native";
+import { Button, Text, View, TextInput, SafeAreaView, StyleSheet, Alert } from "react-native";
 
 
 export default function Signup({ navigation }: { navigation: any }) {
@@ -14,10 +14,33 @@ export default function Signup({ navigation }: { navigation: any }) {
         setPassword(c)
     }
 
-    const onSignup = () => {
-        console.log("Signed up!")
+    const onSignup = async () => {
         console.log("Username: ", username)
         console.log("Password: ", password)
+
+        let url = "https://itvo4rz3ue.execute-api.us-west-2.amazonaws.com/api/signup"
+        let body = {
+            username: username,
+            password: password
+        }
+
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': 'fm41U0SDUIa9bGidkcPjx7GEs316dOMT8ocwmdpy'
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if ("error" in data) {
+                Alert.alert(data["error"])
+            } else {
+                Alert.alert(data["message"])
+                navigation.navigate("Login")
+            }
+        })
     }
 
     return (

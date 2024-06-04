@@ -1,16 +1,37 @@
 import { useState } from "react";
-import { Button, Text, View, TextInput, SafeAreaView, StyleSheet } from "react-native";
+import { Button, Text, View, TextInput, SafeAreaView, StyleSheet, Alert } from "react-native";
 
 
 export default function Login({ navigation }: { navigation: any }) {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-    
-    const onLogin = () => {
-        console.log("Logged in!")
+
+    const onLogin = async () => {
         console.log("Username: ", username)
         console.log("Password: ", password)
-        navigation.navigate("Home")
+
+        let url = "https://itvo4rz3ue.execute-api.us-west-2.amazonaws.com/api/login"
+        let body = {
+            username: username,
+            password: password
+        }
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.X_API_KEY as string
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if ("error" in data) {
+                Alert.alert(data["error"])
+            } else {
+                Alert.alert(data["message"])
+                navigation.navigate("Home")
+            }
+        })
     }
 
     return (
