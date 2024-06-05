@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Text, View, TextInput, SafeAreaView, StyleSheet, Alert } from "react-native";
 
 
@@ -6,12 +6,33 @@ export default function Signup({ navigation }: { navigation: any }) {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
 
-    const onUsernameChange = (c: string) => {
-        setUsername(c)
+    const navigateToLogin = () => {
+        setUsername("")
+        setPassword("")
+        navigation.navigate("Login")
     }
 
-    const onPasswordChange = (c: string) => {
-        setPassword(c)
+    const signupFailed = (message: string) => {
+        Alert.alert("Signup failed", message, [
+            {
+                text: "Try Again",
+                onPress: () => {
+                    setUsername("")
+                    setPassword("")
+                },
+            },
+        ])
+    }
+
+    const signupSuccess = (message: string) => {
+        Alert.alert("Signup Successful", message, [
+            {
+                text: "Login",
+                onPress: () => {
+                    navigateToLogin()
+                },
+            },
+        ])
     }
 
     const onSignup = async () => {
@@ -28,17 +49,18 @@ export default function Signup({ navigation }: { navigation: any }) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-api-key': 'fm41U0SDUIa9bGidkcPjx7GEs316dOMT8ocwmdpy'
+              'x-api-key': process.env.X_API_KEY as string
             },
             body: JSON.stringify(body)
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if ("error" in data) {
-                Alert.alert(data["error"])
-            } else {
-                Alert.alert(data["message"])
-                navigation.navigate("Login")
+            if (data["statusCode"] >= 400) {
+                signupFailed(data["message"])
+            }
+
+            if (data["statusCode"] == 200) {
+                signupSuccess(data["message"])
             }
         })
     }
@@ -48,17 +70,18 @@ export default function Signup({ navigation }: { navigation: any }) {
             <Text style={styles.header}>Signup</Text>
             <TextInput
                 style={styles.input}
-                onChangeText={(c) => onUsernameChange(c)}
+                onChangeText={(c) => setUsername(c)}
                 value={username}
                 placeholder="Username"
             />
             <TextInput
                 style={styles.input}
-                onChangeText={(c) => onPasswordChange(c)}
+                onChangeText={(c) => setPassword(c)}
                 value={password}
                 placeholder="Password"
+                secureTextEntry={true}
             />
-            <Text style={styles.loginStyle} onPress={() => navigation.navigate("Login")}>Already have an account?</Text>
+            <Text style={styles.loginStyle} onPress={() => navigateToLogin()}>Already have an account?</Text>
             <Button title="Signup" onPress={onSignup}/>
         </SafeAreaView>    
     );

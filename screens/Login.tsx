@@ -6,6 +6,24 @@ export default function Login({ navigation }: { navigation: any }) {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
 
+    const loginFailed = (message: string) => {
+        Alert.alert("Login failed", message, [
+            {
+                text: "Try Again",
+                onPress: () => {
+                    setUsername("")
+                    setPassword("")
+                },
+            },
+        ])
+    }
+
+    const navigateToSignup = () => {
+        setUsername("")
+        setPassword("")
+        navigation.navigate("Signup")
+    }
+
     const onLogin = async () => {
         console.log("Username: ", username)
         console.log("Password: ", password)
@@ -25,10 +43,13 @@ export default function Login({ navigation }: { navigation: any }) {
         })
         .then(response => response.json())
         .then(data => {
-            if ("error" in data) {
-                Alert.alert(data["error"])
-            } else {
-                Alert.alert(data["message"])
+            if (data["statusCode"] >= 400) {
+                loginFailed(data["message"])
+            }
+
+            if (data["statusCode"] == 200) {
+                setUsername("")
+                setPassword("")
                 navigation.navigate("Home")
             }
         })
@@ -48,8 +69,9 @@ export default function Login({ navigation }: { navigation: any }) {
                 onChangeText={(c) => setPassword(c)}
                 value={password}
                 placeholder="Password"
+                secureTextEntry={true}
             />
-            <Text style={styles.loginStyle} onPress={() => navigation.navigate("Signup")}>Don't have an account?</Text>
+            <Text style={styles.loginStyle} onPress={() => navigateToSignup()}>Don't have an account?</Text>
             <Button title="Login" onPress={onLogin}/>
         </SafeAreaView>    
     );
