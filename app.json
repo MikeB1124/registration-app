@@ -12,7 +12,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationAlwaysUsageDescription": "Allow Registration to use your location.",
+        "NSLocationWhenInUseUsageDescription": "Allow Registration to use your location."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +31,14 @@
       "eas": {
         "projectId": "3fe65253-b2f9-4c1d-881a-dfae2bf79478"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Registration to use your location."
+        }
+      ]
+    ]
   }
 }
